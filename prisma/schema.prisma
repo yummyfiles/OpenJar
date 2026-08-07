@@ -1,0 +1,499 @@
+// OpenJar database schema
+// PostgreSQL + Prisma. Designed so payment providers, social features and
+// content stay normalized with proper FKs and indexes where they matter.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------------------------
+// Auth (Better Auth)
+// ------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  // ---- profile -------------------------------------------------
+  username          String?   @unique
+  displayName       String?
+  bio               String?
+  website           String?
+  github            String?
+  twitter           String?
+  youtube           String?
+  twitch            String?
+  location          String?
+  banner            String?
+  customLinks       Json?
+  isCreator         Boolean   @default(false)
+  onboardingDone    Boolean   @default(false)
+  category          String?
+  tags              String[]
+  verified          Boolean   @default(false)
+  verifiedNote      String?
+  role              String    @default("user") // user | moderator | admin
+  banned            Boolean   @default(false)
+  banReason         String?
+
+  // ---- creator funding settings --------------------------------
+  currency          String    @default("usd")
+  monthlyGoal       Int?      // monthly target in minor units, null = none
+  allowAnonymous    Boolean   @default(true)
+  allowMessages     Boolean   @default(true)
+  minDonation       Int       @default(100) // minor units, $1
+  payoutMethod      Json?     // payout details, never exposed publicly
+  stripeAccountId   String?
+
+  // ---- theme preferences ----------------------------------------
+  themeMode         String    @default("dark") // dark | light
+  accent            String    @default("#d4d4d4") // grayscale accent
+  monoBranding      Boolean   @default(true)
+
+  lastSeenAt        DateTime?
+
+  // ---- github cache ----------------------------------------------
+  ghData            Json?
+  ghUpdatedAt       DateTime?
+
+  // ---- relations -------------------------------------------------
+  posts             Post[]
+  projects          Project[]
+  goals             Goal[]
+  tiers             Tier[]
+  donationsMade     Donation[]      @relation("donationsMade")
+  donationsReceived Donation[]      @relation("donationsReceived")
+  creatorSubscriptions Subscription[] @relation("subscriptionsAsCreator")
+  supporterSubscriptions Subscription[] @relation("subscriptionsAsSupporter")
+  repos             Repo[]
+  followers         Follow[]        @relation("following")
+  following         Follow[]        @relation("followers")
+  bookmarkedBy      Bookmark[]
+  bookmarks         Bookmark[]      @relation("bookmarkCreator")
+  likes             Like[]
+  comments          Comment[]
+  notifications     Notification[]   @relation("notificationRecipient")
+  notificationsSent Notification[]   @relation("notificationActor")
+  activities        ActivityEvent[]
+  apiKeys           ApiKey[]
+  reportsMade       Report[]        @relation("reporter")
+  verificationRequest VerificationRequest?
+  featuredSlots     FeaturedCreator[]
+  contributorGraph  ContributorGraph?
+  views             PageView[]
+
+  @@index([role, verified])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// ------------------------------------------------------------------
+// Social
+// ------------------------------------------------------------------
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  creatorId String
+  createdAt DateTime @default(now())
+
+  user    User @relation("bookmarkCreator", fields: [userId], references: [id], onDelete: Cascade)
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, creatorId])
+  @@index([creatorId])
+}
+
+// ------------------------------------------------------------------
+// Content
+// ------------------------------------------------------------------
+
+model Post {
+  id           String   @id @default(cuid())
+  authorId     String
+  title        String?
+  slug         String?
+  content      String   @db.Text
+  excerpt      String?
+  coverImage   String?
+  status       String   @default("draft") // draft | published | scheduled | archived
+  kind         String   @default("post") // post | announcement
+  pinned       Boolean  @default(false)
+  scheduledAt  DateTime?
+  publishedAt  DateTime?
+  poll         Json?    // { question, options: [{id,label,votes}] } — kept here so votes are cheap
+  pollVotedBy  String[] @default([])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes    Like[]
+  comments Comment[]
+
+  @@unique([authorId, slug])
+  @@index([authorId, status])
+  @@index([publishedAt])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  parentId  String?
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post    Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author  User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent  Comment? @relation("commentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies Comment[] @relation("commentReplies")
+
+  @@index([postId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  creatorId   String
+  name        String
+  slug        String?
+  description String?  @db.Text
+  repoUrl     String?
+  website     String?
+  tags        String[] @default([])
+  coverImage  String?
+  pinned      Boolean  @default(false)
+  likes       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+}
+
+// GitHub repo cache — refreshed via the GitHub API, never queried live
+model Repo {
+  id          String   @id @default(cuid())
+  creatorId   String
+  repoId      Int
+  name        String
+  fullName    String   @unique
+  description String?
+  url         String
+  homepage    String?
+  language    String?
+  stars       Int      @default(0)
+  forks       Int      @default(0)
+  issues      Int      @default(0)
+  pullRequests Int     @default(0)
+  openIssues  Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  pinned      Boolean  @default(false)
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([creatorId, repoId])
+  @@index([creatorId])
+}
+
+// Contribution graph for a connected GitHub account (52 weeks of counts)
+model ContributorGraph {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeks     Json     // [{ date: "2026-08-01", count: 4 }]
+  total     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+// ------------------------------------------------------------------
+// Funding
+// ------------------------------------------------------------------
+
+model Tier {
+  id          String   @id @default(cuid())
+  creatorId   String
+  name        String
+  description String?
+  price       Int      // monthly, minor units
+  currency    String   @default("usd")
+  perks       String[] @default([])
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator       User           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+  donations     Donation[]
+
+  @@index([creatorId])
+}
+
+model Donation {
+  id            String   @id @default(cuid())
+  creatorId     String
+  supporterId   String?
+  supporterName String? // used when anonymous or a guest paid
+  supporterEmail String?
+  amount        Int      // minor units
+  currency      String   @default("usd")
+  message       String?
+  anonymous     Boolean  @default(false)
+  kind          String   @default("one_time") // one_time | membership
+  status        String   @default("pending") // pending | completed | refunded | failed
+  provider      String   @default("manual") // stripe | lemonsqueezy | manual | ...
+  providerRef   String?
+  interval      String?  // month | year (for memberships)
+  tierId        String?
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  creator   User  @relation("donationsReceived", fields: [creatorId], references: [id], onDelete: Cascade)
+  supporter User? @relation("donationsMade", fields: [supporterId], references: [id], onDelete: SetNull)
+  tier      Tier? @relation(fields: [tierId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, providerRef])
+  @@index([creatorId, status])
+  @@index([creatorId, createdAt])
+  @@index([supporterId])
+  @@index([createdAt])
+}
+
+model Subscription {
+  id                 String    @id @default(cuid())
+  creatorId          String
+  supporterId        String
+  tierId             String
+  status             String    @default("active") // active | past_due | cancelled | ended
+  provider           String    @default("manual")
+  providerRef        String?
+  interval           String    @default("month")
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAt           DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  creator   User @relation("subscriptionsAsCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  supporter User @relation("subscriptionsAsSupporter", fields: [supporterId], references: [id], onDelete: Cascade)
+  tier      Tier @relation(fields: [tierId], references: [id], onDelete: Cascade)
+
+  @@unique([supporterId, tierId])
+  @@index([creatorId, status])
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  creatorId   String
+  title       String
+  description String?
+  amount      Int       // target, minor units
+  deadline    DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+}
+
+// ------------------------------------------------------------------
+// Notifications & activity
+// ------------------------------------------------------------------
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   // recipient
+  actorId   String?
+  type      String   // follow | donation | comment | like | post | milestone | system | verification
+  title     String
+  body      String?
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User  @relation("notificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  actor User? @relation("notificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+model ActivityEvent {
+  id        String   @id @default(cuid())
+  creatorId String
+  type      String   // donation | post | milestone | follow | project
+  payload   Json?
+  public    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId, createdAt])
+}
+
+// ------------------------------------------------------------------
+// API, moderation, admin
+// ------------------------------------------------------------------
+
+model ApiKey {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  keyHash   String    @unique // SHA-256 of the full key
+  prefix    String    // visible prefix like "ojr_abc123..."
+  scopes    String[]  @default(["donations:read", "profile:read"])
+  lastUsedAt DateTime?
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+  revoked   Boolean   @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Report {
+  id         String    @id @default(cuid())
+  reporterId String?
+  targetType String    // user | post | comment | project
+  targetId   String
+  reason     String
+  details    String?
+  status     String    @default("open") // open | investigating | resolved | dismissed
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+  handledBy  String?
+
+  reporter User? @relation("reporter", fields: [reporterId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([targetType, targetId])
+}
+
+model VerificationRequest {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  status     String    @default("pending") // pending | approved | rejected
+  evidence   String?
+  note       String?
+  createdAt  DateTime  @default(now())
+  handledAt  DateTime?
+  handledBy  String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+// a single page view of a creator page, used for the dashboard's visitor +
+// conversion metrics. aggregated, never exposed publicly.
+model PageView {
+  id        String   @id @default(cuid())
+  creatorId String
+  viewedAt  DateTime @default(now())
+  ref       String?
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId, viewedAt])
+}
+
+model FeaturedCreator {
+  id         String   @id @default(cuid())
+  creatorId  String
+  slot       Int      @default(0)
+  label      String?  // e.g. "open-source" | "featured" | "new"
+  featuredAt DateTime @default(now())
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@unique([creatorId, label])
+  @@index([label])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

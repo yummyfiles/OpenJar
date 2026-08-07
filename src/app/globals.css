@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-black text-white antialiased;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.light body {
+  @apply bg-white text-ink-950;
+}
+
+::selection {
+  @apply bg-neutral-700 text-white;
+}
+
+/* scrollbars — subtle, matches the no-clutter ethos */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme("colors.neutral.700") transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-neutral-800;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* subtle dotted grid used behind heroes */
+.bg-dots {
+  background-image: radial-gradient(rgb(255 255 255 / 0.09) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.light .bg-dots {
+  background-image: radial-gradient(rgb(0 0 0 / 0.08) 1px, transparent 1px);
+}
+
+/* faint grid lines */
+.bg-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.light .bg-grid {
+  background-image:
+    linear-gradient(rgb(0 0 0 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(0 0 0 / 0.04) 1px, transparent 1px);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* focus visibility for keyboard nav */
+:focus-visible {
+  outline: 2px solid theme("colors.neutral.400");
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* code blocks */
+.hljs {
+  @apply bg-transparent text-neutral-300;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag {
+  @apply text-neutral-200 font-semibold;
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-attr,
+.hljs-number {
+  @apply text-neutral-100;
+}
+.hljs-title,
+.hljs-section,
+.hljs-name {
+  @apply text-neutral-100;
+}
+.hljs-comment {
+  @apply text-neutral-500;
+}
+.hljs-variable,
+.hljs-template-variable {
+  @apply text-neutral-300;
+}
+.hljs-built_in,
+.hljs-type {
+  @apply text-neutral-200;
+}
+.hljs-meta {
+  @apply text-neutral-500;
+}
+
+/* markdown prose (used on posts + bios) */
+.prose-openjar {
+  @apply text-neutral-300 leading-relaxed;
+}
+.prose-openjar h1,
+.prose-openjar h2,
+.prose-openjar h3,
+.prose-openjar h4 {
+  @apply text-white font-semibold mt-8 mb-3 tracking-tight;
+}
+.prose-openjar h1 { @apply text-2xl; }
+.prose-openjar h2 { @apply text-xl; }
+.prose-openjar h3 { @apply text-lg; }
+.prose-openjar p { @apply my-4; }
+.prose-openjar a { @apply text-white underline underline-offset-4 decoration-neutral-600 hover:decoration-white transition-colors; }
+.prose-openjar ul { @apply list-disc pl-6 my-4 space-y-1; }
+.prose-openjar ol { @apply list-decimal pl-6 my-4 space-y-1; }
+.prose-openjar blockquote {
+  @apply border-l-2 border-neutral-700 pl-4 my-4 text-neutral-400 italic;
+}
+.prose-openjar code {
+  @apply font-mono text-sm bg-neutral-900 border border-neutral-800 px-1.5 py-0.5 rounded;
+}
+.prose-openjar pre {
+  @apply bg-neutral-950 border border-neutral-800 rounded-lg p-4 my-4 overflow-x-auto;
+}
+.prose-openjar pre code {
+  @apply bg-transparent border-0 p-0;
+}
+.prose-openjar img {
+  @apply rounded-lg border border-neutral-800 my-4;
+}
+.prose-openjar hr {
+  @apply border-neutral-800 my-8;
+}
+
+.light .prose-openjar {
+  @apply text-neutral-600;
+}
+.light .prose-openjar h1,
+.light .prose-openjar h2,
+.light .prose-openjar h3,
+.light .prose-openjar h4 {
+  @apply text-neutral-900;
+}
+.light .prose-openjar a {
+  @apply text-neutral-900 decoration-neutral-400;
+}
+.light .prose-openjar code,
+.light .prose-openjar pre {
+  @apply bg-neutral-100 border-neutral-200;
+}
+
+/* the subtle mono label used across the site */
+.label-mono {
+  @apply font-mono text-xs uppercase tracking-[0.2em] text-neutral-500;
+}
+
+/* faint dot grid used as a banner fallback */
+.bg-grid-faint {
+  background-image: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.08) 1px, transparent 0);
+  background-size: 24px 24px;
+}
