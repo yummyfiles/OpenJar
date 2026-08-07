@@ -62,9 +62,9 @@ export function SiteFooter() {
               >
                 <Github className="h-5 w-5" />
               </a>
-              <a href="/rss" className="font-mono text-xs text-neutral-500 transition-colors hover:text-white">
+              <Link href="/rss" className="font-mono text-xs text-neutral-500 transition-colors hover:text-white">
                 RSS
-              </a>
+              </Link>
             </div>
           </div>
 

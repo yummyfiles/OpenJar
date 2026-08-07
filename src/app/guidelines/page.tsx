@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { StaticHeader } from "@/components/static-header";
 
 export const metadata: Metadata = { title: "Community Guidelines" };
@@ -44,11 +45,11 @@ export default function GuidelinesPage() {
           ))}
         </div>
 
-        <p className="mt-10 text-center text-sm text-neutral-500">
+<p className="mt-10 text-center text-sm text-neutral-500">
           See something that violates these guidelines?{" "}
-          <a href="/contact" className="text-white underline-offset-4 hover:underline">
+          <Link href="/contact" className="text-white underline-offset-4 hover:underline">
             Tell us
-          </a>{" "}
+          </Link>{" "}
           — or use the report feature on the content.
         </p>
       </div>

@@ -234,7 +234,7 @@ export function SupportPanel({
 
         {mode === "membership" && !session?.user && (
           <p className="flex items-center gap-1.5 text-xs text-neutral-500">
-            <Lock className="h-3 w-3" /> You'll sign in to start a membership.
+            <Lock className="h-3 w-3" /> You&apos;ll sign in to start a membership.
           </p>
         )}
       </form>
