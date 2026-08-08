@@ -2,18 +2,18 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUserFull } from "@/lib/session";
 import { Avatar } from "@/components/ui/avatar";
-import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { SettingsNav } from "@/components/settings/settings-nav";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUserFull();
-  if (!user) redirect("/login?next=/dashboard");
+  if (!user) redirect("/login?next=/settings");
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div className="flex items-center gap-4">
         <Avatar src={user.image} alt={user.name} size="lg" />
         <div>
-          <p className="label-mono mb-0.5">creator dashboard</p>
+          <p className="label-mono mb-0.5">creator settings</p>
           <h1 className="text-xl font-bold tracking-tight">{user.displayName || user.name}</h1>
         </div>
         <div className="ml-auto hidden items-center gap-3 sm:flex">
@@ -35,7 +35,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
         <div className="lg:sticky lg:top-24 lg:self-start">
-          <DashboardNav />
+          <SettingsNav />
         </div>
         <div className="min-w-0">{children}</div>
       </div>

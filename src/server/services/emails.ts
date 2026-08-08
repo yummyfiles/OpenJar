@@ -41,7 +41,7 @@ export function newDonationAlertHtml(opts: { amount: string; supporter: string; 
   return `<div style="font-family:system-ui;max-width:520px;margin:0 auto;color:#0a0a0a">
   <h1 style="font-size:20px">You received a new donation</h1>
   <p><strong>${opts.supporter}</strong> just supported you with <strong>${opts.amount}</strong>.</p>
-  <p><a href="${opts.url}" style="color:#000">View it in your dashboard</a></p>
+  <p><a href="${opts.url}" style="color:#000">View it in your settings</a></p>
 </div>`;
 }
 

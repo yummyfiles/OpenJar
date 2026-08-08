@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Create your page" };
 
 export default async function SignupPage() {
   const user = await getCurrentUser();
-  if (user) redirect(user.onboardingDone ? "/dashboard" : "/onboarding");
+  if (user) redirect(user.onboardingDone ? "/settings" : "/onboarding");
 
   return (
     <AuthShell title="Create your page" subtitle="Free forever. Claim your name, start in minutes.">

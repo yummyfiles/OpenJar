@@ -7,7 +7,7 @@ import { Avatar } from "@/components/ui/avatar";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardOverviewPage() {
+export default async function SettingsOverviewPage() {
   const user = await getCurrentUserFull();
   if (!user) return null;
 
@@ -96,7 +96,7 @@ export default async function DashboardOverviewPage() {
           <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-5">
             <div className="flex items-center justify-between">
               <h2 className="label-mono">membership tiers</h2>
-              <Link href="/dashboard/settings" className="font-mono text-[11px] text-neutral-500 hover:text-white">
+              <Link href="/settings/settings" className="font-mono text-[11px] text-neutral-500 hover:text-white">
                 manage
               </Link>
             </div>

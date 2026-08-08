@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Sign in" };
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
-  if (user) redirect(user.onboardingDone ? "/dashboard" : "/onboarding");
+  if (user) redirect(user.onboardingDone ? "/settings" : "/onboarding");
 
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to manage your page and supporters.">

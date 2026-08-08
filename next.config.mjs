@@ -20,6 +20,13 @@ const nextConfig = {
       { protocol: "https", hostname: "gravatar.com" }
     ]
   },
+  async redirects() {
+    // the creator area moved from /dashboard to /settings; keep old URLs working
+    return [
+      { source: "/dashboard", destination: "/settings", permanent: true },
+      { source: "/dashboard/:path*", destination: "/settings/:path*", permanent: true }
+    ];
+  },
   async headers() {
     return [
       {

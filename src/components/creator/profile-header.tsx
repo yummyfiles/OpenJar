@@ -84,7 +84,7 @@ export function ProfileHeader({
                 )}
                 {ownPage && (
                   <Badge>
-                    <Link href="/dashboard/settings">edit profile</Link>
+                    <Link href="/settings/settings">edit profile</Link>
                   </Badge>
                 )}
                 {ownPage && (

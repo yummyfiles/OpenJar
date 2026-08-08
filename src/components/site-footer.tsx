@@ -19,7 +19,7 @@ const columns = [
     title: "Creators",
     links: [
       { href: "/signup", label: "Create your page" },
-      { href: "/dashboard", label: "Dashboard" },
+      { href: "/settings", label: "Settings" },
       { href: "/faq", label: "FAQ" },
       { href: "/guidelines", label: "Guidelines" }
     ]

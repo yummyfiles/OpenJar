@@ -69,8 +69,8 @@ function UserMenu() {
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
-          <Link href="/dashboard">
-            <LayoutDashboard /> Dashboard
+          <Link href="/settings">
+            <LayoutDashboard /> Settings
           </Link>
         </DropdownMenuItem>
         {user.role === "admin" && (
@@ -134,7 +134,7 @@ export function SiteHeader() {
           {user ? (
             <div className="flex items-center gap-2">
               <Button asChild variant="ghost" size="icon" aria-label="Notifications">
-                <Link href="/dashboard/notifications">
+                <Link href="/settings/notifications">
                   <Bell className="h-4 w-4" />
                 </Link>
               </Button>
@@ -182,8 +182,8 @@ export function SiteHeader() {
                     Your page
                   </Link>
                 )}
-                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
-                  Dashboard
+                <Link href="/settings" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
+                  Settings
                 </Link>
               </>
             ) : (

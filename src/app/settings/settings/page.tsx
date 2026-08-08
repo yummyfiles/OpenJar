@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentUserFull } from "@/lib/session";
-import { SettingsForm } from "@/components/dashboard/settings-form";
+import { SettingsForm } from "@/components/settings/settings-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardSettingsPage() {
+export default async function SettingsPage() {
   const user = await getCurrentUserFull();
-  if (!user) redirect("/login?next=/dashboard/settings");
+  if (!user) redirect("/login?next=/settings/settings");
 
   return (
     <SettingsForm

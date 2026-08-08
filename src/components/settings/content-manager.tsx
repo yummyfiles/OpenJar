@@ -76,7 +76,7 @@ export default function ContentManager() {
         </div>
         {tab === "posts" && (
           <Link
-            href="/dashboard/content/new"
+            href="/settings/content/new"
             className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 font-mono text-xs font-medium text-black"
           >
             <Plus className="h-3.5 w-3.5" /> New post
@@ -102,7 +102,7 @@ export default function ContentManager() {
               </div>
               <div className="flex items-center gap-1">
                 <Link
-                  href={`/dashboard/content/${p.id}`}
+                  href={`/settings/content/${p.id}`}
                   className="rounded-lg border border-neutral-800 p-2 text-neutral-400 transition-colors hover:border-neutral-600 hover:text-white"
                 >
                   <Pencil className="h-3.5 w-3.5" />

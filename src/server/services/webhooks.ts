@@ -69,7 +69,7 @@ async function onPaymentSucceeded(provider: string, event: Extract<WebhookEvent,
       type: "donation",
       title: `New donation of ${formatMoney(donation.amount, donation.currency)}`,
       body: donation.message?.slice(0, 140) ?? undefined,
-      link: "/dashboard/donations"
+      link: "/settings/donations"
     });
   }
 
@@ -168,7 +168,7 @@ async function onSubscriptionCancelled(provider: string, event: Extract<WebhookE
     userId: sub.creatorId,
     type: "system",
     title: "A membership was cancelled",
-    link: "/dashboard/subscribers"
+    link: "/settings/subscribers"
   });
 }
 
@@ -247,7 +247,7 @@ async function maybeCompleteGoals(creatorId: string) {
         userId: creatorId,
         type: "milestone",
         title: `Goal reached: ${goal.title}`,
-        link: "/dashboard/goals"
+        link: "/settings/goals"
       });
     }
   }
@@ -291,7 +291,7 @@ async function sendPaymentEmails(donation: { id: string; creatorId: string; supp
     html: newDonationAlertHtml({
       amount: formatMoney(donation.amount, donation.currency),
       supporter: supporterLabel,
-      url: `${base}/dashboard/donations`
+      url: `${base}/settings/donations`
     })
   });
 }

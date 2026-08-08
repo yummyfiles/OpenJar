@@ -6,14 +6,14 @@ import { LayoutDashboard, FileText, HeartHandshake, Users, Settings, type Lucide
 import { cn } from "@/lib/utils";
 
 const NAV: { href: string; label: string; icon: LucideIcon; exact?: boolean }[] = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/content", label: "Content", icon: FileText },
-  { href: "/dashboard/donations", label: "Donations", icon: HeartHandshake },
-  { href: "/dashboard/subscribers", label: "Subscribers", icon: Users },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings }
+  { href: "/settings", label: "Overview", icon: LayoutDashboard, exact: true },
+  { href: "/settings/content", label: "Content", icon: FileText },
+  { href: "/settings/donations", label: "Donations", icon: HeartHandshake },
+  { href: "/settings/subscribers", label: "Subscribers", icon: Users },
+  { href: "/settings/settings", label: "Settings", icon: Settings }
 ];
 
-export function DashboardNav() {
+export function SettingsNav() {
   const pathname = usePathname();
 
   return (

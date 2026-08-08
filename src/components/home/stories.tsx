@@ -30,7 +30,7 @@ export function SuccessStories() {
         <SectionHeader eyebrow="success stories" title="What creators are saying" href="/discover" linkLabel="Meet them" />
         <div className="grid gap-4 md:grid-cols-3">
           {stories.map((story) => (
-            <figure key={story.who} className="flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-6 transition-all hover:-translate-y-1 hover:border-neutral-700">
+            <figure key={story.who} className="flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-6 transition-all hover:border-neutral-700">
               <blockquote className="flex-1 text-sm leading-relaxed text-neutral-300">“{story.quote}”</blockquote>
               <figcaption className="mt-6 border-t border-neutral-800 pt-4">
                 <p className="font-mono text-xs uppercase tracking-wider text-neutral-500">{story.who}</p>

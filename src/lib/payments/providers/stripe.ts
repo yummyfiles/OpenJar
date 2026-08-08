@@ -74,8 +74,8 @@ export async function createAccountLink(accountId: string, mode: "account_onboar
   if (!stripe) throw new Error("Stripe is not configured");
   const link = await stripe.accountLinks.create({
     account: accountId,
-    refresh_url: `${origin}/dashboard/settings?stripe=refresh`,
-    return_url: `${origin}/dashboard/settings?stripe=done`,
+    refresh_url: `${origin}/settings/settings?stripe=refresh`,
+    return_url: `${origin}/settings/settings?stripe=done`,
     type: mode
   });
   return link.url;

@@ -31,7 +31,7 @@ export function OpenSourceSpotlight({
               <Link
                 key={creator.id}
                 href={`/${handle}`}
-                className="group rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-card-hover"
+                className="group rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:border-neutral-600 hover:shadow-card-hover"
               >
                 <div className="flex items-center gap-3">
                   <Avatar src={creator.image} alt={creator.displayName ?? creator.name} size="lg" />

@@ -40,7 +40,7 @@ export function FundingGoals({
               <Link
                 key={goal.id}
                 href={`/${handle}`}
-                className="group flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-card-hover"
+                className="group flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:border-neutral-600 hover:shadow-card-hover"
               >
                 <div className="flex items-center gap-2 text-neutral-400">
                   <Target className="h-4 w-4" />

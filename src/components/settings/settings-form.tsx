@@ -6,7 +6,7 @@ import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { CREATOR_CATEGORIES } from "@/lib/constants";
-import { EmbedSnippets } from "@/components/dashboard/embed-snippets";
+import { EmbedSnippets } from "@/components/settings/embed-snippets";
 
 type StripeState = {
   loading: boolean;

@@ -23,7 +23,7 @@ export function ProjectGrid({ projects }: { projects: PublicProject[] }) {
       <h2 className="label-mono oj-accent-text mb-4">Projects</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {projects.map((project) => (
-          <article key={project.id} className="oj-card flex flex-col rounded-xl border border-neutral-800 p-5 transition-all hover:-translate-y-1 hover:border-neutral-600">
+          <article key={project.id} className="oj-card flex flex-col rounded-xl border border-neutral-800 p-5 transition-colors hover:border-neutral-600">
             <div className="flex items-start justify-between gap-3">
               <h3 className="oj-page-text font-semibold tracking-tight">{project.name}</h3>
               <span className="inline-flex items-center gap-1 font-mono text-xs text-neutral-500">

@@ -1,22 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Share_Tech_Mono } from "next/font/google";
-import { MotionConfig } from "framer-motion";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/toaster";
-import { ScrollProgress } from "@/components/scroll-progress";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
+// Cascadia Mono (SIL OFL, Microsoft) — the whole site renders in it
+const cascadiaMono = localFont({
+  src: "./fonts/CascadiaMono.woff2",
+  weight: "200 700",
   variable: "--font-sans",
   display: "swap"
 });
 
-const shareTechMono = Share_Tech_Mono({
-  weight: "400",
-  subsets: ["latin"],
+const cascadiaMonoMono = localFont({
+  src: "./fonts/CascadiaMono.woff2",
+  weight: "200 700",
   variable: "--font-mono",
   display: "swap"
 });
@@ -51,16 +51,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${shareTechMono.variable} flex min-h-screen flex-col`}>
-        <MotionConfig reducedMotion="user">
-          <ThemeProvider>
-            <ScrollProgress />
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-            <Toaster />
-          </ThemeProvider>
-        </MotionConfig>
+      <body className={`${cascadiaMono.variable} ${cascadiaMonoMono.variable} flex min-h-screen flex-col`}>
+        <ThemeProvider>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

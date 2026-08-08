@@ -34,7 +34,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           return;
         }
         toast.success("Welcome back");
-        router.push("/dashboard");
+        router.push("/settings");
         router.refresh();
       } else {
         const { error } = await signUp.email({ email, password, name, callbackURL: "/onboarding" });

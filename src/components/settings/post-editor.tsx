@@ -58,7 +58,7 @@ export default function PostEditor() {
       if (!res.ok) throw new Error(json?.error?.message ?? "Failed to save");
       toast.success(nextStatus === "published" ? "Post published" : "Saved");
       if (json.data.username) router.push(`/${json.data.username}`);
-      else router.push("/dashboard/content");
+      else router.push("/settings/content");
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
@@ -77,7 +77,7 @@ export default function PostEditor() {
 
   return (
     <div>
-      <button onClick={() => router.push("/dashboard/content")} className="inline-flex items-center gap-1.5 font-mono text-xs text-neutral-500 hover:text-white">
+      <button onClick={() => router.push("/settings/content")} className="inline-flex items-center gap-1.5 font-mono text-xs text-neutral-500 hover:text-white">
         <ArrowLeft className="h-3.5 w-3.5" /> back to content
       </button>
 
