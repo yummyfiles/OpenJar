@@ -17,10 +17,14 @@ export default async function MePage() {
   // supporters skip onboarding entirely — mark it done so login/signup
   // redirects don't bounce them to the creator onboarding flow
   if (!user.onboardingDone) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { onboardingDone: true }
-    });
+    try {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { onboardingDone: true }
+      });
+    } catch {
+      // ignore - user may have been deleted or db issue
+    }
   }
 
   return <SupporterProfile user={user} />;
