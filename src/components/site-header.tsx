@@ -31,9 +31,9 @@ function Logo() {
       <Image
         src="/openjar-logo.png"
         alt="OpenJar"
-        width={66}
-        height={30}
-        className="h-[30px] w-auto"
+        width={92}
+        height={42}
+        className="h-[42px] w-auto"
         priority
       />
     </Link>

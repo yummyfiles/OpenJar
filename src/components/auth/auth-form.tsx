@@ -143,7 +143,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16 sm:py-24">
       <Link href="/" aria-label="OpenJar home" className="mb-8 flex items-center">
-        <Image src="/openjar-logo.png" alt="OpenJar" width={99} height={45} className="h-[45px] w-auto" priority />
+        <Image src="/openjar-logo.png" alt="OpenJar" width={132} height={60} className="h-[60px] w-auto" priority />
       </Link>
       <div className={cn("rounded-xl border border-neutral-800 bg-neutral-950/60 p-6 sm:p-8")}>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>

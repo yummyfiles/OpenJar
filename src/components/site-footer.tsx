@@ -51,9 +51,9 @@ export function SiteFooter() {
               <Image
                 src="/openjar-logo.png"
                 alt="OpenJar"
-                width={99}
-                height={45}
-                className="h-[45px] w-auto"
+                width={132}
+                height={60}
+                className="h-[60px] w-auto"
               />
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-500">
