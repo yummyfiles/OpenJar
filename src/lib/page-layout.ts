@@ -15,7 +15,20 @@ export type PageColors = {
   card?: string;
   text?: string;
   accent?: string;
+  btnBg?: string;
+  btnText?: string;
+  border?: string;
 };
+
+export const COLOR_KEYS = [
+  "pageBg",
+  "card",
+  "text",
+  "accent",
+  "btnBg",
+  "btnText",
+  "border"
+] as const;
 
 export type PageLayout = {
   links: PageLink[];
@@ -119,7 +132,7 @@ export function parseLayout(raw: unknown): PageLayout {
     layoutObj.colors && typeof layoutObj.colors === "object" && !Array.isArray(layoutObj.colors)
       ? (layoutObj.colors as Record<string, unknown>)
       : {};
-  for (const key of ["pageBg", "card", "text", "accent"] as const) {
+  for (const key of COLOR_KEYS) {
     if (isHexColor(colorsObj[key])) colors[key] = colorsObj[key];
   }
 

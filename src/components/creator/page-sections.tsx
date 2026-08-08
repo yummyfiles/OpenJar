@@ -76,7 +76,7 @@ export function CustomLinks({ links }: { links: PageLink[] }) {
           href={link.url}
           target="_blank"
           rel="noreferrer"
-          className="oj-card inline-flex items-center gap-1.5 rounded-full border border-neutral-800 px-4 py-2 text-sm text-neutral-200 transition-colors hover:border-neutral-600 hover:text-white"
+          className="oj-card oj-btn oj-btn-text inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm transition-colors hover:border-neutral-600 hover:text-white"
         >
           <Link2 className="h-3.5 w-3.5 text-neutral-500" />
           {link.label}

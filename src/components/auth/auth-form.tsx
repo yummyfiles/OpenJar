@@ -17,6 +17,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const isLogin = mode === "login";
   const [loading, setLoading] = React.useState<null | "email" | "github" | "google">(null);
   const [socialError, setSocialError] = React.useState<string | null>(null);
+  const [accountType, setAccountType] = React.useState<"creator" | "supporter">("creator");
+
+  const signupDestination = accountType === "creator" ? "/onboarding" : "/me";
 
   async function onEmailSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,16 +37,15 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           return;
         }
         toast.success("Welcome back");
-        router.push("/settings");
         router.refresh();
       } else {
-        const { error } = await signUp.email({ email, password, name, callbackURL: "/onboarding" });
+        const { error } = await signUp.email({ email, password, name, callbackURL: signupDestination });
         if (error) {
           toast.error(error.message ?? "Could not create your account");
           return;
         }
         toast.success("Account created");
-        router.push("/onboarding");
+        router.push(signupDestination);
         router.refresh();
       }
     } finally {
@@ -56,7 +58,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     setSocialError(null);
     const { error } = await signIn.social({
       provider,
-      callbackURL: "/onboarding"
+      callbackURL: isLogin ? "/" : signupDestination
     });
     if (error) {
       setSocialError(
@@ -68,6 +70,39 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   return (
     <form onSubmit={onEmailSubmit} className="flex flex-col gap-4">
+      {!isLogin && (
+        <div className="grid grid-cols-2 gap-1.5 rounded-xl border border-neutral-800 bg-neutral-950/80 p-1">
+          <button
+            type="button"
+            onClick={() => setAccountType("creator")}
+            className={`rounded-lg px-3 py-2 text-left transition-colors ${
+              accountType === "creator"
+                ? "bg-white text-black font-medium"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <span className="block text-xs font-semibold">I&apos;m a creator</span>
+            <span className={`block text-[10px] leading-tight ${accountType === "creator" ? "text-neutral-600" : "text-neutral-500"}`}>
+              Accept donations & memberships
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setAccountType("supporter")}
+            className={`rounded-lg px-3 py-2 text-left transition-colors ${
+              accountType === "supporter"
+                ? "bg-white text-black font-medium"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <span className="block text-xs font-semibold">I&apos;m a supporter</span>
+            <span className={`block text-[10px] leading-tight ${accountType === "supporter" ? "text-neutral-600" : "text-neutral-500"}`}>
+              Follow & donate, no page needed
+            </span>
+          </button>
+        </div>
+      )}
+
       {!isLogin && (
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="name">Name</Label>
@@ -103,7 +138,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       <Button type="submit" disabled={loading !== null} className="mt-2">
         {loading === "email" && <Spinner />}
-        {isLogin ? "Sign in" : "Create your page"}
+        {isLogin ? "Sign in" : accountType === "creator" ? "Create your page" : "Create supporter account"}
       </Button>
 
       <div className="flex items-center gap-3 py-1">

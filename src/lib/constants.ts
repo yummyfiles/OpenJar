@@ -30,6 +30,7 @@ export const RESERVED_USERNAMES = [
   "home",
   "login",
   "logout",
+  "me",
   "new",
   "notifications",
   "onboarding",

@@ -12,6 +12,7 @@ import {
   Link2,
   Loader2,
   Palette,
+  Pencil,
   Plus,
   Trash2,
   X
@@ -42,7 +43,10 @@ const COLOR_ROWS: { key: keyof PageColors; label: string; hint: string; fallback
   { key: "pageBg", label: "Page background", hint: "Behind the content", fallback: "#000000" },
   { key: "card", label: "Cards", hint: "Panels & cards", fallback: "#0a0a0a" },
   { key: "text", label: "Text", hint: "Headings & values", fallback: "#ffffff" },
-  { key: "accent", label: "Accent", hint: "Section headings", fallback: "#a3e635" }
+  { key: "accent", label: "Accent", hint: "Section headings", fallback: "#a3e635" },
+  { key: "btnBg", label: "Buttons", hint: "Link button background", fallback: "#0a0a0a" },
+  { key: "btnText", label: "Button text", hint: "Link button text", fallback: "#d4d4d4" },
+  { key: "border", label: "Borders", hint: "Card & button borders", fallback: "#262626" }
 ];
 
 export function PageBuilder({
@@ -60,6 +64,7 @@ export function PageBuilder({
   const [tab, setTab] = React.useState<TabId | null>("sections");
   const [busy, setBusy] = React.useState(false);
   const [uploading, setUploading] = React.useState<"image" | "banner" | null>(null);
+  const [addingSection, setAddingSection] = React.useState(false);
 
   const dirty =
     JSON.stringify(sections) !== JSON.stringify(initialLayout.layout.sections) ||
@@ -68,6 +73,7 @@ export function PageBuilder({
 
   function toggleSection(id: PageSectionId) {
     setSections((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+    setAddingSection(false);
   }
 
   function updateLink(id: string, patch: Partial<PageLink>) {
@@ -156,14 +162,19 @@ export function PageBuilder({
   const liveVars = {
     ...(colors.card ? { "--oj-card": colors.card } : {}),
     ...(colors.text ? { "--oj-text": colors.text } : {}),
-    ...(colors.accent ? { "--oj-accent": colors.accent } : {})
+    ...(colors.accent ? { "--oj-accent": colors.accent } : {}),
+    ...(colors.btnBg ? { "--oj-btn": colors.btnBg } : {}),
+    ...(colors.btnText ? { "--oj-btn-text": colors.btnText } : {}),
+    ...(colors.border ? { "--oj-border": colors.border } : {})
   } as React.CSSProperties;
+
+  const hiddenSections = SECTION_IDS.filter((id) => !sections.includes(id));
 
   return (
     <div style={{ ...liveVars, backgroundColor: colors.pageBg || "var(--oj-page-bg, transparent)" }} className="pb-56">
       <p className="mb-8 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950/80 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
         <GripVertical className="h-3 w-3" />
-        customize mode — drag cards to reorder, then save
+        customize mode — drag to reorder, hover elements to edit, then save
       </p>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -174,9 +185,54 @@ export function PageBuilder({
           className="min-w-0 space-y-12"
           style={{ listStyle: "none", margin: 0, padding: 0 }}
         >
-          {sections.map((id) => (
-            <EditableSection key={id} id={id} snapshot={snapshot} />
-          ))}
+          {sections.map((id) =>
+            id === "links" ? (
+              <EditableLinksSection
+                key={id}
+                links={links}
+                onReorder={setLinks}
+                updateLink={updateLink}
+                removeLink={removeLink}
+                addLink={addLink}
+                onToggle={toggleSection}
+              />
+            ) : (
+              <EditableSection key={id} id={id} snapshot={snapshot} onToggle={toggleSection} />
+            )
+          )}
+
+          <li className="list-none">
+            {addingSection ? (
+              <div className="rounded-2xl border border-dashed border-neutral-700 p-4">
+                <p className="label-mono mb-3 text-[10px]">add a section</p>
+                {hiddenSections.length === 0 ? (
+                  <p className="text-xs text-neutral-600">All sections are already on your page.</p>
+                ) : (
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {hiddenSections.map((id) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => toggleSection(id)}
+                        className="rounded-lg border border-neutral-800 px-3 py-2.5 text-left transition-colors hover:border-neutral-600"
+                      >
+                        <span className="block text-sm">{SECTION_META[id].label}</span>
+                        <span className="block text-[11px] text-neutral-500">{SECTION_META[id].description}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setAddingSection(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-neutral-700 py-4 text-sm text-neutral-500 transition-colors hover:border-neutral-600 hover:text-white"
+              >
+                <Plus className="h-4 w-4" /> add a section
+              </button>
+            )}
+          </li>
         </Reorder.Group>
 
         <aside className="space-y-8">
@@ -427,20 +483,197 @@ export function PageBuilder({
   );
 }
 
-function EditableSection({ id, snapshot }: { id: PageSectionId; snapshot: PageSnapshot }) {
+function SectionControls({
+  label,
+  onDragStart,
+  onRemove
+}: {
+  label: string;
+  onDragStart: (e: React.PointerEvent) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="absolute right-0 top-0 z-10 flex items-center gap-0.5 rounded-md border border-neutral-800 bg-neutral-950/90 px-1 py-1 text-neutral-500 shadow-sm">
+      <span className="px-1.5 font-mono text-[9px] uppercase tracking-wider">{label}</span>
+      <button
+        type="button"
+        onPointerDown={onDragStart}
+        title="Drag to reorder"
+        className="rounded px-1.5 py-0.5 transition-colors hover:border-neutral-600 hover:text-white"
+      >
+        <GripVertical className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={onRemove}
+        title="Remove from page"
+        className="rounded px-1.5 py-0.5 transition-colors hover:text-red-400"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+function EditableSection({
+  id,
+  snapshot,
+  onToggle
+}: {
+  id: PageSectionId;
+  snapshot: PageSnapshot;
+  onToggle: (id: PageSectionId) => void;
+}) {
   const controls = useDragControls();
   return (
     <Reorder.Item value={id} dragListener={false} dragControls={controls} className="relative list-none">
       <div className="relative">
+        <SectionControls
+          label={SECTION_META[id].label}
+          onDragStart={(e) => controls.start(e)}
+          onRemove={() => onToggle(id)}
+        />
+        <SectionRenderer section={id} snapshot={snapshot} editable />
+      </div>
+    </Reorder.Item>
+  );
+}
+
+function EditableLinksSection({
+  links,
+  onReorder,
+  updateLink,
+  removeLink,
+  addLink,
+  onToggle
+}: {
+  links: PageLink[];
+  onReorder: (list: PageLink[]) => void;
+  updateLink: (id: string, patch: Partial<PageLink>) => void;
+  removeLink: (id: string) => void;
+  addLink: () => void;
+  onToggle: (id: PageSectionId) => void;
+}) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item value="links" dragListener={false} dragControls={controls} className="relative list-none">
+      <div className="relative">
+        <SectionControls
+          label={SECTION_META.links.label}
+          onDragStart={(e) => controls.start(e)}
+          onRemove={() => onToggle("links")}
+        />
+        {links.length === 0 ? (
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-neutral-700 bg-neutral-950/30 p-5">
+            <p className="font-mono text-xs uppercase tracking-wider text-neutral-600">
+              no links yet — add buttons below
+            </p>
+          </div>
+        ) : (
+          <Reorder.Group
+            axis="y"
+            values={links}
+            onReorder={onReorder}
+            className="space-y-2"
+            style={{ listStyle: "none", margin: 0, padding: 0 }}
+          >
+            {links.map((link) => (
+              <EditableLink key={link.id} link={link} updateLink={updateLink} removeLink={removeLink} />
+            ))}
+          </Reorder.Group>
+        )}
+        <button
+          type="button"
+          onClick={addLink}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-dashed border-neutral-700 px-4 py-2 text-sm text-neutral-500 transition-colors hover:border-neutral-600 hover:text-white"
+        >
+          <Plus className="h-3.5 w-3.5" /> add button
+        </button>
+      </div>
+    </Reorder.Item>
+  );
+}
+
+function EditableLink({
+  link,
+  updateLink,
+  removeLink
+}: {
+  link: PageLink;
+  updateLink: (id: string, patch: Partial<PageLink>) => void;
+  removeLink: (id: string) => void;
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const controls = useDragControls();
+
+  return (
+    <Reorder.Item value={link} dragListener={false} dragControls={controls} className="list-none">
+      <div className="oj-card oj-btn oj-btn-text flex items-center gap-2 rounded-full border border-neutral-800 py-1 pl-1 pr-2">
         <button
           type="button"
           onPointerDown={(e) => controls.start(e)}
           title="Drag to reorder"
-          className="absolute right-0 top-0 z-10 flex items-center rounded-md border border-neutral-800 bg-neutral-950/90 px-1.5 py-1 text-neutral-500 transition-colors hover:border-neutral-600 hover:text-white"
+          className="flex h-7 w-6 shrink-0 items-center justify-center rounded-full text-neutral-500 transition-colors hover:text-white"
         >
-          <GripVertical className="h-4 w-4" />
+          <GripVertical className="h-3.5 w-3.5" />
         </button>
-        <SectionRenderer section={id} snapshot={snapshot} editable />
+
+        {editing ? (
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Input
+              value={link.label}
+              onChange={(e) => updateLink(link.id, { label: e.target.value })}
+              placeholder="Label"
+              maxLength={60}
+              className="h-7 w-28 shrink-0 rounded-full bg-neutral-950/60 text-xs"
+            />
+            <Input
+              value={link.url}
+              onChange={(e) => updateLink(link.id, { url: e.target.value })}
+              placeholder="https://…"
+              maxLength={2048}
+              className="h-7 min-w-0 flex-1 rounded-full bg-neutral-950/60 font-mono text-xs"
+            />
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              title="Done"
+              className="shrink-0 text-neutral-500 transition-colors hover:text-white"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <>
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.preventDefault()}
+              className="min-w-0 flex-1 truncate px-2 text-sm"
+            >
+              <Link2 className="mr-1.5 inline h-3.5 w-3.5 text-neutral-500" />
+              {link.label || "untitled link"}
+            </a>
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              title="Edit link"
+              className="shrink-0 text-neutral-500 transition-colors hover:text-white"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          </>
+        )}
+
+        <button
+          type="button"
+          onClick={() => removeLink(link.id)}
+          title="Delete link"
+          className="shrink-0 text-neutral-500 transition-colors hover:text-red-400"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
     </Reorder.Item>
   );

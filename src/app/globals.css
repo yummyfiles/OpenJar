@@ -177,6 +177,13 @@ body {
    classes below let any element opt into the creator's chosen palette. */
 .oj-card {
   background-color: var(--oj-card, rgb(10 10 10 / 0.6));
+  border-color: var(--oj-border, rgb(38 38 38));
+}
+.oj-btn {
+  background-color: var(--oj-btn, var(--oj-card, rgb(10 10 10 / 0.6)));
+}
+.oj-btn-text {
+  color: var(--oj-btn-text, var(--oj-text, currentColor));
 }
 .oj-page-bg {
   background-color: var(--oj-page-bg);

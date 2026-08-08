@@ -18,7 +18,7 @@ export const revalidate = 0;
 // guard the reserved word pages before hitting the username catch-all
 const reserved = new Set([
   "about", "admin", "api", "auth", "dashboard", "discover", "docs", "faq", "forgot-password",
-  "guidelines", "login", "onboarding", "privacy", "reset-password", "signup", "terms", "open-source", "contact"
+  "guidelines", "login", "me", "onboarding", "privacy", "reset-password", "signup", "terms", "open-source", "contact"
 ]);
 
 type PageData = NonNullable<Awaited<ReturnType<typeof getCreatorPageData>>>;
@@ -52,6 +52,9 @@ export default async function CreatorPage({
   if (colors.pageBg) cssVars.backgroundColor = colors.pageBg;
   if (colors.card) cssVars["--oj-card"] = colors.card;
   if (colors.text) cssVars["--oj-text"] = colors.text;
+  if (colors.btnBg) cssVars["--oj-btn"] = colors.btnBg;
+  if (colors.btnText) cssVars["--oj-btn-text"] = colors.btnText;
+  if (colors.border) cssVars["--oj-border"] = colors.border;
   const accent = colors.accent ?? (isHexColor(user.accent) ? user.accent : undefined);
   if (accent) cssVars["--oj-accent"] = accent;
 

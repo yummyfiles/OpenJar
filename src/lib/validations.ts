@@ -30,7 +30,10 @@ export const pageLayoutSchema = z.object({
           pageBg: hexColorSchema,
           card: hexColorSchema,
           text: hexColorSchema,
-          accent: hexColorSchema
+          accent: hexColorSchema,
+          btnBg: hexColorSchema,
+          btnText: hexColorSchema,
+          border: hexColorSchema
         })
         .optional()
     })

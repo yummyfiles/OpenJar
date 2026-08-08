@@ -4,14 +4,14 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/session";
 import { AuthForm, AuthShell } from "@/components/auth/auth-form";
 
-export const metadata: Metadata = { title: "Create your page" };
+export const metadata: Metadata = { title: "Join OpenJar" };
 
 export default async function SignupPage() {
   const user = await getCurrentUser();
-  if (user) redirect(user.onboardingDone ? "/settings" : "/onboarding");
+  if (user) redirect(user.isCreator ? "/settings" : "/me");
 
   return (
-    <AuthShell title="Create your page" subtitle="Free forever. Claim your name, start in minutes.">
+    <AuthShell title="Join OpenJar" subtitle="Create a page to accept support, or join as a supporter to follow and donate.">
       <AuthForm mode="signup" />
       <p className="mt-6 text-center text-sm text-neutral-500">
         Already have an account?{" "}

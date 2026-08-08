@@ -46,7 +46,7 @@ function UserMenu() {
 
   if (!user) return null;
 
-  const username = (user.username as string | undefined) ?? (user.displayName as string | undefined);
+  const username = user.username as string | undefined;
 
   return (
     <DropdownMenu>
@@ -58,21 +58,36 @@ function UserMenu() {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>
           {user.name}
-          <span className="block truncate font-mono text-[10px] normal-case text-neutral-500">@{username ?? "no-username"}</span>
+          <span className="block truncate font-mono text-[10px] normal-case text-neutral-500">@{username ?? "supporter"}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {username && (
-          <DropdownMenuItem asChild>
-            <Link href={`/${username}`}>
-              <UserRound /> Your page
-            </Link>
-          </DropdownMenuItem>
+        {username ? (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href={`/${username}`}>
+                <UserRound /> Your page
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <LayoutDashboard /> Settings
+              </Link>
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/me">
+                <UserRound /> My profile
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/onboarding">
+                <LayoutDashboard /> Become a creator
+              </Link>
+            </DropdownMenuItem>
+          </>
         )}
-        <DropdownMenuItem asChild>
-          <Link href="/settings">
-            <LayoutDashboard /> Settings
-          </Link>
-        </DropdownMenuItem>
         {user.role === "admin" && (
           <DropdownMenuItem asChild>
             <Link href="/admin">Admin</Link>
@@ -98,7 +113,7 @@ export function SiteHeader() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const user = session?.user;
-  const username = (user?.username as string | undefined) ?? (user?.displayName as string | undefined);
+  const username = user?.username as string | undefined;
 
   if (pathname.includes("/embed")) return null;
 
@@ -177,14 +192,25 @@ export function SiteHeader() {
             ))}
             {user ? (
               <>
-                {username && (
-                  <Link href={`/${username}`} onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
-                    Your page
-                  </Link>
+                {username ? (
+                  <>
+                    <Link href={`/${username}`} onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
+                      Your page
+                    </Link>
+                    <Link href="/settings" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
+                      Settings
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/me" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
+                      My profile
+                    </Link>
+                    <Link href="/onboarding" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
+                      Become a creator
+                    </Link>
+                  </>
                 )}
-                <Link href="/settings" onClick={() => setMobileOpen(false)} className="rounded-md px-3 py-2 text-sm text-neutral-300 hover:bg-neutral-900">
-                  Settings
-                </Link>
               </>
             ) : (
               <>

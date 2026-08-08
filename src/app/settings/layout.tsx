@@ -2,11 +2,29 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUserFull } from "@/lib/session";
 import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { SettingsNav } from "@/components/settings/settings-nav";
 
 export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUserFull();
   if (!user) redirect("/login?next=/settings");
+
+  if (!user.isCreator) {
+    return (
+      <main className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 py-16">
+        <div className="w-full rounded-2xl border border-neutral-800 bg-neutral-950/60 p-6 text-center">
+          <p className="label-mono mb-2">settings</p>
+          <h1 className="text-xl font-bold tracking-tight">You don&apos;t have a creator page yet</h1>
+          <p className="mt-2 text-sm text-neutral-500">
+            The settings area is where creators manage their page, supporters, and funding. Create your page to get started.
+          </p>
+          <Button className="mt-5 w-full" asChild>
+            <Link href="/onboarding">Create your page</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
