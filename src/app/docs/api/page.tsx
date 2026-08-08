@@ -29,7 +29,6 @@ const ENDPOINTS = [
       { method: "PATCH", path: "/api/v1/goals/{id}", desc: "Update or complete a goal.", auth: true },
       { method: "GET", path: "/api/v1/dashboard/analytics", desc: "Views/donations series. Query: days (default 30, max 90).", auth: true },
       { method: "GET", path: "/api/v1/dashboard/content", desc: "Your posts, tiers, goals, projects.", auth: true },
-      { method: "POST", path: "/api/v1/dashboard/donations", desc: "Record an off-platform donation.", auth: true },
       { method: "GET", path: "/api/v1/dashboard/subscribers", desc: "List your active subscriptions.", auth: true },
       { method: "POST", path: "/api/v1/dashboard/github", desc: "Refresh your GitHub sync (rate-limited).", auth: true }
     ]

@@ -3,8 +3,6 @@ import { randomId } from "@/lib/utils";
 import { ApiError } from "@/lib/api";
 import { getPaymentProvider } from "@/lib/payments";
 import type { CreateCheckoutParams } from "@/lib/payments/types";
-import { notify } from "./notifications";
-import { trackActivity } from "./activity";
 
 export interface DonationIntentInput {
   creator: {
@@ -134,39 +132,4 @@ export async function getCreatorDonationSummary(creatorId: string) {
 
 export async function getSubscriberCount(creatorId: string) {
   return prisma.subscription.count({ where: { creatorId, status: "active" } });
-}
-
-// creator records a payment they collected outside a provider (manual provider,
-// offline donation, cash). produces the same activity + notifications as a
-// provider payment so nothing downstream knows the difference.
-export async function recordManualDonation(
-  creatorId: string,
-  input: { amount: number; currency?: string; supporterName?: string; message?: string; anonymous?: boolean }
-) {
-  const donation = await prisma.donation.create({
-    data: {
-      id: randomId("don"),
-      creatorId,
-      amount: input.amount,
-      currency: (input.currency ?? "usd").toLowerCase(),
-      supporterName: input.supporterName || null,
-      message: input.message || null,
-      anonymous: input.anonymous ?? false,
-      kind: "one_time",
-      status: "completed",
-      completedAt: new Date(),
-      provider: "manual"
-    }
-  });
-
-  if (!donation.anonymous) {
-    await trackActivity(creatorId, "donation", { amount: donation.amount, currency: donation.currency, supporter: donation.supporterName });
-  }
-  await notify({
-    userId: creatorId,
-    type: "donation",
-    title: `Donation of ${(donation.amount / 100).toFixed(2)} ${donation.currency.toUpperCase()} recorded`,
-    link: "/dashboard/donations"
-  });
-  return donation;
 }
