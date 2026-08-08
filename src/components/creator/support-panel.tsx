@@ -108,7 +108,7 @@ export function SupportPanel({
   }
 
   return (
-    <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-5">
+    <div className="oj-card rounded-xl border border-neutral-800 p-5">
       <div className="flex items-center justify-between">
         <h2 className="label-mono">Support</h2>
         <Heart className="h-4 w-4 text-neutral-500" />

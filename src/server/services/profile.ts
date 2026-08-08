@@ -27,7 +27,18 @@ export async function updateProfile(userId: string, rawInput: unknown, opts: { c
     data.username = username;
   }
 
-  const stringFields = ["displayName", "bio", "website", "github", "twitter", "location", "category", "currency"] as const;
+  const stringFields = [
+    "displayName",
+    "bio",
+    "website",
+    "github",
+    "twitter",
+    "location",
+    "category",
+    "currency",
+    "image",
+    "banner"
+  ] as const;
   for (const field of stringFields) {
     const value = input[field as keyof typeof input];
     if (value !== undefined) {
@@ -41,6 +52,10 @@ export async function updateProfile(userId: string, rawInput: unknown, opts: { c
 
   if (input.accent !== undefined && input.accent) {
     data.accent = input.accent.startsWith("#") ? input.accent : `#${input.accent}`;
+  }
+
+  if (input.customLinks !== undefined) {
+    data.customLinks = input.customLinks as never;
   }
 
   if (input.isCreator !== undefined) data.isCreator = input.isCreator;

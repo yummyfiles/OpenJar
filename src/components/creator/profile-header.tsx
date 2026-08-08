@@ -87,6 +87,11 @@ export function ProfileHeader({
                     <Link href="/dashboard/settings">edit profile</Link>
                   </Badge>
                 )}
+                {ownPage && (
+                  <Badge variant="accent">
+                    <Link href={`/${creator.username ?? ""}?customize=1`}>customize</Link>
+                  </Badge>
+                )}
               </div>
               <p className="mt-0.5 font-mono text-sm text-neutral-500">@{creator.username}</p>
 

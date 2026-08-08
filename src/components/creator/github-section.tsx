@@ -1,8 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { GitFork, Github, Star } from "lucide-react";
 import { compactNumber } from "@/lib/utils";
 
-type Repo = {
+export type GithubRepo = {
   id: string;
   name: string;
   fullName: string;
@@ -15,7 +17,7 @@ type Repo = {
   pinned: boolean;
 };
 
-type Contribution = { weeks: unknown; total: number };
+export type GithubContribution = { weeks: unknown; total: number };
 
 export function GithubSection({
   username,
@@ -24,23 +26,23 @@ export function GithubSection({
   totalContributions
 }: {
   username: string;
-  repos: Repo[];
-  contributions: Contribution | null;
+  repos: GithubRepo[];
+  contributions: GithubContribution | null;
   totalContributions: number | null;
 }) {
   if (repos.length === 0 && !contributions) return null;
 
   return (
     <section>
-      <h2 className="label-mono mb-4 flex items-center gap-2">
+      <h2 className="label-mono oj-accent-text mb-4 flex items-center gap-2">
         <Github className="h-3.5 w-3.5" /> GitHub
       </h2>
 
       {contributions && totalContributions != null && (
-        <div className="mb-4 rounded-xl border border-neutral-800 bg-neutral-950/60 p-5">
+        <div className="oj-card mb-4 rounded-xl border border-neutral-800 p-5">
           <div className="flex items-baseline justify-between">
             <span className="font-mono text-sm text-neutral-400">contributions</span>
-            <span className="font-mono text-xl text-white">{compactNumber(totalContributions)}</span>
+            <span className="oj-page-text font-mono text-xl">{compactNumber(totalContributions)}</span>
           </div>
         </div>
       )}
@@ -52,7 +54,7 @@ export function GithubSection({
             href={repo.url}
             target="_blank"
             rel="noreferrer"
-            className="group flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-4 transition-colors hover:border-neutral-600"
+            className="oj-card group flex flex-col rounded-xl border border-neutral-800 p-4 transition-colors hover:border-neutral-600"
           >
             <div className="flex items-center justify-between gap-2">
               <h3 className="truncate font-mono text-sm group-hover:text-white">{repo.name}</h3>

@@ -252,3 +252,25 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ------- customizable page chrome -------
+   the creator page sets these CSS vars from the saved page layout; the
+   classes below let any element opt into the creator's chosen palette. */
+.oj-card {
+  background-color: var(--oj-card, rgb(10 10 10 / 0.6));
+}
+.oj-page-bg {
+  background-color: var(--oj-page-bg);
+}
+.oj-page-text {
+  color: var(--oj-text);
+}
+.oj-accent-text {
+  color: var(--oj-accent, #d4d4d4);
+}
+.oj-accent-bg {
+  background-color: var(--oj-accent, #d4d4d4);
+}
+.oj-accent-bg:hover {
+  filter: brightness(1.1);
+}

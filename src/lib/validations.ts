@@ -6,6 +6,37 @@ const usernameSchema = z
   .max(32, "Username must be at most 32 characters")
   .regex(/^[a-z0-9_]+$/, "Only lowercase letters, numbers and underscores allowed");
 
+const hexColorSchema = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/, "Must be a hex color like #a3e635")
+  .optional();
+
+export const pageLinkSchema = z.object({
+  id: z.string().min(1).max(64).optional(),
+  label: z.string().min(1, "Label is required").max(60),
+  url: z.string().min(1, "URL is required").max(2048)
+});
+
+export const pageLayoutSchema = z.object({
+  links: z.array(pageLinkSchema).max(12).optional(),
+  layout: z
+    .object({
+      sections: z
+        .array(z.enum(["stats", "links", "goals", "posts", "projects", "github", "supporters"]))
+        .max(10)
+        .optional(),
+      colors: z
+        .object({
+          pageBg: hexColorSchema,
+          card: hexColorSchema,
+          text: hexColorSchema,
+          accent: hexColorSchema
+        })
+        .optional()
+    })
+    .optional()
+});
+
 export const onboardingSchema = z.object({
   username: usernameSchema,
   displayName: z.string().min(1).max(60).optional().or(z.literal("")),
@@ -27,7 +58,10 @@ export const onboardingSchema = z.object({
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/, "Accent must be a hex color")
     .optional()
-    .or(z.literal(""))
+    .or(z.literal("")),
+  image: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+  banner: z.string().url("Enter a valid image URL").optional().or(z.literal("")),
+  customLinks: pageLayoutSchema.optional()
 });
 
 export const profileUpdateSchema = onboardingSchema.partial();
