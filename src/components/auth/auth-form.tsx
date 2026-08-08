@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import { Github } from "lucide-react";
 import { signIn, signUp } from "@/lib/auth-client";
@@ -141,9 +142,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 export function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <div className="mx-auto flex max-w-md flex-col px-4 py-16 sm:py-24">
-      <Link href="/" className="mb-8 flex items-center gap-2 font-mono text-lg font-bold">
-        <span className="inline-block h-2.5 w-2.5 rounded-full bg-white" />
-        OpenJar
+      <Link href="/" aria-label="OpenJar home" className="mb-8 flex items-center">
+        <Image src="/openjar-logo.png" alt="OpenJar" width={99} height={45} className="h-[45px] w-auto" priority />
       </Link>
       <div className={cn("rounded-xl border border-neutral-800 bg-neutral-950/60 p-6 sm:p-8")}>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>

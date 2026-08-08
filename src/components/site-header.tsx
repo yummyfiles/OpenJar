@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Bell, LayoutDashboard, LogOut, Menu, Search, UserRound, X } from "lucide-react";
 import { signOut, useSession } from "@/lib/auth-client";
@@ -26,9 +27,15 @@ const navLinks = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2 font-mono text-lg tracking-tight">
-      <span className="inline-block h-2.5 w-2.5 rounded-full bg-white" />
-      <span className="font-bold">OpenJar</span>
+    <Link href="/" aria-label="OpenJar home" className="flex items-center">
+      <Image
+        src="/openjar-logo.png"
+        alt="OpenJar"
+        width={66}
+        height={30}
+        className="h-[30px] w-auto"
+        priority
+      />
     </Link>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Github } from "lucide-react";
 
 const columns = [
@@ -46,9 +47,14 @@ export function SiteFooter() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-6">
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-2 font-mono text-lg font-bold">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-white" />
-              OpenJar
+            <Link href="/" aria-label="OpenJar home" className="flex items-center">
+              <Image
+                src="/openjar-logo.png"
+                alt="OpenJar"
+                width={99}
+                height={45}
+                className="h-[45px] w-auto"
+              />
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-neutral-500">
               Open support for open creators. A free, open-source home for the people building amazing things.
