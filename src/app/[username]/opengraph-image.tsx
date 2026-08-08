@@ -1,8 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const cascadia = {
+  regular: readFileSync(join(process.cwd(), "src/app/fonts/CascadiaMono-Regular.ttf")),
+  bold: readFileSync(join(process.cwd(), "src/app/fonts/CascadiaMono-Bold.ttf"))
+};
 
 export default async function CreatorOpenGraphImage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
@@ -25,7 +32,7 @@ export default async function CreatorOpenGraphImage({ params }: { params: Promis
         padding: 80,
         backgroundColor: "#0a0a0a",
         color: "#ffffff",
-        fontFamily: "sans-serif"
+        fontFamily: "Cascadia Mono"
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 20, color: "#9ca3af", fontSize: 28 }}>
@@ -54,6 +61,12 @@ export default async function CreatorOpenGraphImage({ params }: { params: Promis
       <div style={{ marginTop: 40, fontSize: 72, fontWeight: 700, lineHeight: 1.1 }}>{title}</div>
       <div style={{ marginTop: 24, fontSize: 30, color: "#9ca3af", lineHeight: 1.4, maxWidth: 900 }}>{bio}</div>
     </div>,
-    { ...size }
+    {
+      ...size,
+      fonts: [
+        { name: "Cascadia Mono", data: cascadia.regular, weight: 400, style: "normal" },
+        { name: "Cascadia Mono", data: cascadia.bold, weight: 700, style: "normal" }
+      ]
+    }
   );
 }
