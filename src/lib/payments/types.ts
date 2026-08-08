@@ -23,6 +23,10 @@ export interface CreateCheckoutParams {
   successUrl: string;
   cancelUrl: string;
   customerEmail?: string;
+  /** stripe connect express account the funds should be routed to */
+  connectAccountId?: string;
+  /** platform fee in minor units (0 = pass-through, creator pays processor fees) */
+  platformFee?: number;
 }
 
 export interface CheckoutMetadata {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { ZodError } from "zod";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
@@ -31,6 +32,11 @@ export function handleError(err: unknown) {
     });
   }
   console.error("[api] unhandled:", err);
+  try {
+    Sentry.captureException(err);
+  } catch {
+    // sentry should never break the request path
+  }
   return fail(500, "Something went wrong", "internal");
 }
 

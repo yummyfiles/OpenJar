@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { ApiError } from "@/lib/api";
 import { slugify } from "@/lib/utils";
+import { checkContent } from "@/lib/moderation";
 import { notify } from "./notifications";
 import { trackActivity } from "./activity";
 
@@ -18,6 +19,11 @@ export type PostInput = {
 };
 
 export async function createPost(authorId: string, input: PostInput) {
+  const moderation = checkContent(`${input.title ?? ""} ${input.content}`);
+  if (moderation.blocked) {
+    throw new ApiError(400, "This post was flagged by our spam filter", "blocked_content");
+  }
+
   const status = resolveStatus(input);
   const slugBase = input.title ? slugify(input.title) : `post-${Date.now().toString(36)}`;
 
@@ -141,6 +147,11 @@ export async function addComment(userId: string, postId: string, content: string
   if (parentId) {
     const parent = await prisma.comment.findFirst({ where: { id: parentId, postId } });
     if (!parent) throw new ApiError(404, "Parent comment not found");
+  }
+
+  const moderation = checkContent(content);
+  if (moderation.blocked) {
+    throw new ApiError(400, "This comment was flagged by our spam filter", "blocked_content");
   }
 
   const post = await prisma.post.findFirst({

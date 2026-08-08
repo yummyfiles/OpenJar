@@ -17,7 +17,15 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     maxPasswordLength: 128,
-    requireEmailVerification: false
+    requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      const { sendEmail, passwordResetHtml } = await import("@/server/services/emails");
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your OpenJar password",
+        html: passwordResetHtml({ url, name: user.name })
+      });
+    }
   },
 
   socialProviders: {

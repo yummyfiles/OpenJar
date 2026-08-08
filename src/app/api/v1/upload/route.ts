@@ -5,7 +5,7 @@ import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   try {
-    const rl = rateLimit(clientIp(req), { key: "upload", limit: 30 });
+    const rl = await rateLimit(clientIp(req), { key: "upload", limit: 30 });
     if (!rl.success) {
       return NextResponse.json({ error: { code: "rate_limited", message: "Too many uploads" } }, { status: 429 });
     }

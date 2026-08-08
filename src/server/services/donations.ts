@@ -7,7 +7,14 @@ import { notify } from "./notifications";
 import { trackActivity } from "./activity";
 
 export interface DonationIntentInput {
-  creator: { id: string; minDonation: number; allowAnonymous: boolean; allowMessages: boolean; currency: string };
+  creator: {
+    id: string;
+    minDonation: number;
+    allowAnonymous: boolean;
+    allowMessages: boolean;
+    currency: string;
+    stripeAccountId?: string | null;
+  };
   supporter?: { id: string; email?: string; name?: string } | null;
   amount: number;
   currency?: string;
@@ -66,6 +73,10 @@ export async function createCheckout(input: DonationIntentInput & { redirectTo: 
     mode: input.kind === "membership" ? "subscription" : "payment",
     interval: input.kind === "membership" ? input.interval ?? "month" : undefined,
     tierName: tier?.name,
+    // stripe connect express: route the money straight to the creator's account.
+    // platform fee is $0 — the creator simply absorbs Stripe's processing fees.
+    connectAccountId: input.creator.stripeAccountId ?? undefined,
+    platformFee: 0,
     metadata: {
       creatorId: input.creator.id,
       supporterId: input.supporter?.id ?? undefined,

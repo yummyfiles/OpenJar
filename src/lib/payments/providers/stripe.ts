@@ -10,9 +10,75 @@ import { registerProvider } from "../registry";
 
 const providerName: PaymentProviderName = "stripe";
 
-function client(): Stripe | null {
+export function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
   return key ? new Stripe(key) : null;
+}
+
+function client(): Stripe | null {
+  return getStripe();
+}
+
+// ---------------------------------------------------------------------------
+// Stripe Connect Express — creator onboarding & payouts
+// ---------------------------------------------------------------------------
+
+export function isConnectConfigured(): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
+/** Creates (or returns) the platform-side Express account for a creator. */
+export async function ensureConnectAccount(input: { email: string; name: string; url?: string }): Promise<{
+  accountId: string;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+}> {
+  const stripe = client();
+  if (!stripe) throw new Error("Stripe is not configured (STRIPE_SECRET_KEY is missing)");
+
+  const account = await stripe.accounts.create({
+    type: "express",
+    email: input.email,
+    business_profile: {
+      name: input.name.slice(0, 120) || undefined,
+      url: input.url || undefined
+    }
+  });
+
+  return {
+    accountId: account.id,
+    chargesEnabled: account.charges_enabled,
+    payoutsEnabled: account.payouts_enabled
+  };
+}
+
+export async function getConnectAccount(accountId: string): Promise<{
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+}> {
+  const stripe = client();
+  if (!stripe) throw new Error("Stripe is not configured");
+  const account = await stripe.accounts.retrieve(accountId);
+  return {
+    chargesEnabled: account.charges_enabled,
+    payoutsEnabled: account.payouts_enabled
+  };
+}
+
+/**
+ * Returns a Stripe-hosted onboarding/dashboard link for a connected account.
+ * `mode: "account_onboarding"` for first-time setup, `"account_update"` to manage.
+ */
+export async function createAccountLink(accountId: string, mode: "account_onboarding" | "account_update", origin: string): Promise<string> {
+  const stripe = client();
+  if (!stripe) throw new Error("Stripe is not configured");
+  const link = await stripe.accountLinks.create({
+    account: accountId,
+    refresh_url: `${origin}/dashboard/settings?stripe=refresh`,
+    return_url: `${origin}/dashboard/settings?stripe=done`,
+    type: mode
+  });
+  return link.url;
 }
 
 export const stripeProvider: PaymentProvider = {
@@ -27,6 +93,9 @@ export const stripeProvider: PaymentProvider = {
     if (!stripe) throw new Error("Stripe is not configured (STRIPE_SECRET_KEY is missing)");
 
     const isSubscription = params.mode === "subscription";
+    const connectAccountId = params.connectAccountId;
+    const platformFee = params.platformFee ?? 0;
+
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = isSubscription
       ? [
           {
@@ -71,7 +140,23 @@ export const stripeProvider: PaymentProvider = {
       // one-time donations can be anonymous from the get go
       allow_promotion_codes: true,
       payment_method_types: ["card"],
-      ...(isSubscription ? { subscription_data: { metadata: { donationId: params.metadata.donationId } } } : {})
+      ...(isSubscription
+        ? {
+            subscription_data: {
+              metadata: { donationId: params.metadata.donationId },
+              ...(connectAccountId
+                ? { transfer_data: { destination: connectAccountId }, application_fee_percent: 0 }
+                : {})
+            }
+          }
+        : connectAccountId
+          ? {
+              payment_intent_data: {
+                transfer_data: { destination: connectAccountId },
+                application_fee_amount: platformFee
+              }
+            }
+          : {})
     });
 
     return {

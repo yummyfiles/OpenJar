@@ -36,3 +36,20 @@ export function donationReceiptHtml(opts: { amount: string; creatorName: string;
   <p><a href="${opts.url}" style="color:#000">View your receipt</a></p>
 </div>`;
 }
+
+export function newDonationAlertHtml(opts: { amount: string; supporter: string; url: string }) {
+  return `<div style="font-family:system-ui;max-width:520px;margin:0 auto;color:#0a0a0a">
+  <h1 style="font-size:20px">You received a new donation</h1>
+  <p><strong>${opts.supporter}</strong> just supported you with <strong>${opts.amount}</strong>.</p>
+  <p><a href="${opts.url}" style="color:#000">View it in your dashboard</a></p>
+</div>`;
+}
+
+export function passwordResetHtml(opts: { url: string; name: string }) {
+  return `<div style="font-family:system-ui;max-width:520px;margin:0 auto;color:#0a0a0a">
+  <h1 style="font-size:20px">Reset your password</h1>
+  <p>Hi ${opts.name}, click the button below to set a new password. The link expires in one hour.</p>
+  <p><a href="${opts.url}" style="display:inline-block;background:#0a0a0a;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Reset password</a></p>
+  <p style="font-size:12px;color:#999">If you didn't request this, you can safely ignore this email.</p>
+</div>`;
+}

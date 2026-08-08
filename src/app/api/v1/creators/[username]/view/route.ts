@@ -8,7 +8,7 @@ import { rateLimit, clientIp } from "@/lib/rate-limit";
 export async function POST(req: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
     const { username } = await params;
-    const rl = rateLimit(clientIp(req), { key: `view:${username}`, limit: 60 });
+    const rl = await rateLimit(clientIp(req), { key: `view:${username}`, limit: 60 });
     if (!rl.success) return NextResponse.json({ data: { ok: true } });
 
     const creator = await prisma.user.findFirst({ where: { username }, select: { id: true } });

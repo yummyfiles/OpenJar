@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import type { WebhookEvent } from "@/lib/payments/types";
 import { notify } from "./notifications";
 import { trackActivity } from "./activity";
+import { sendEmail, donationReceiptHtml, newDonationAlertHtml } from "./emails";
 
 // Shared webhook processing. Every payment provider normalizes into WebhookEvent
 // and this one function turns them into database state. No provider-specific
@@ -74,6 +75,10 @@ async function onPaymentSucceeded(provider: string, event: Extract<WebhookEvent,
 
   // bump the goal if the money targets one — handled implicitly by aggregation
   await maybeCompleteGoals(donation.creatorId);
+
+  if (isNew) {
+    await sendPaymentEmails(donation, event.customerName);
+  }
 
   return `payment ${donation.id} marked completed`;
 }
@@ -250,4 +255,43 @@ async function maybeCompleteGoals(creatorId: string) {
 
 function formatMoney(amount: number, currency: string) {
   return `${(amount / 100).toFixed(2)} ${currency.toUpperCase()}`;
+}
+
+async function sendPaymentEmails(donation: { id: string; creatorId: string; supporterEmail: string | null; supporterName: string | null; anonymous: boolean; amount: number; currency: string; kind: string }, customerName?: string | null) {
+  const creator = await prisma.user.findUnique({
+    where: { id: donation.creatorId },
+    select: { email: true, displayName: true, name: true, username: true }
+  });
+  if (!creator) return;
+
+  const base = process.env.BASE_URL ?? "http://localhost:3000";
+  const supporterEmail = donation.supporterEmail;
+  const supporterLabel = donation.anonymous ? "a supporter" : (donation.supporterName || customerName || "a supporter");
+
+  if (donation.kind === "membership") {
+    return; // membership welcome emails handled elsewhere
+  }
+
+  if (supporterEmail) {
+    await sendEmail({
+      to: supporterEmail,
+      subject: `Your donation to ${creator.displayName || creator.name} is confirmed`,
+      html: donationReceiptHtml({
+        amount: formatMoney(donation.amount, donation.currency),
+        creatorName: creator.displayName || creator.name || "creator",
+        date: new Date().toLocaleDateString(),
+        url: `${base}/${creator.username}`
+      })
+    });
+  }
+
+  await sendEmail({
+    to: creator.email,
+    subject: `New donation: ${formatMoney(donation.amount, donation.currency)}`,
+    html: newDonationAlertHtml({
+      amount: formatMoney(donation.amount, donation.currency),
+      supporter: supporterLabel,
+      url: `${base}/dashboard/donations`
+    })
+  });
 }

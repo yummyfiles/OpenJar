@@ -10,7 +10,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ usernam
     const { username } = await params;
 
     // keep checkout creation from being spammed
-    const rl = rateLimit(clientIp(req), { key: `donate:${username}`, limit: 20 });
+    const rl = await rateLimit(clientIp(req), { key: `donate:${username}`, limit: 20 });
     if (!rl.success) {
       return NextResponse.json(
         { error: { code: "rate_limited", message: "Too many attempts, slow down" } },
@@ -20,7 +20,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ usernam
 
     const creator = await prisma.user.findFirst({
       where: { username },
-      select: { id: true, minDonation: true, allowAnonymous: true, allowMessages: true, currency: true, isCreator: true }
+      select: {
+        id: true,
+        minDonation: true,
+        allowAnonymous: true,
+        allowMessages: true,
+        currency: true,
+        isCreator: true,
+        stripeAccountId: true
+      }
     });
     if (!creator || !creator.isCreator) throw new ApiError(404, "Creator not found");
 

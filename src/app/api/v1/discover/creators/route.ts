@@ -5,7 +5,7 @@ import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function GET(req: Request) {
   try {
-    const rl = rateLimit(clientIp(req), { key: "discover", limit: 60 });
+    const rl = await rateLimit(clientIp(req), { key: "discover", limit: 60 });
     if (!rl.success) {
       return NextResponse.json({ error: { code: "rate_limited", message: "Slow down" } }, { status: 429 });
     }

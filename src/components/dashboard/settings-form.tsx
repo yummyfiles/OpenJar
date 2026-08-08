@@ -2,10 +2,19 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { Loader2, RefreshCw } from "lucide-react";
+import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { CREATOR_CATEGORIES } from "@/lib/constants";
+
+type StripeState = {
+  loading: boolean;
+  connected: boolean;
+  configured: boolean;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  link: string | null;
+};
 
 export function SettingsForm({ initial }: { initial: Record<string, unknown> }) {
   const [form, setForm] = React.useState({
@@ -21,6 +30,46 @@ export function SettingsForm({ initial }: { initial: Record<string, unknown> }) 
   });
   const [busy, setBusy] = React.useState(false);
   const [githubBusy, setGithubBusy] = React.useState(false);
+  const [stripe, setStripe] = React.useState<StripeState>({
+    loading: true,
+    connected: false,
+    configured: false,
+    chargesEnabled: false,
+    payoutsEnabled: false,
+    link: null
+  });
+
+  React.useEffect(() => {
+    fetch("/api/v1/me/stripe-connect")
+      .then((r) => r.json())
+      .then((json) => {
+        const d = json.data ?? {};
+        setStripe({
+          loading: false,
+          connected: Boolean(d.connected),
+          configured: Boolean(d.configured),
+          chargesEnabled: Boolean(d.chargesEnabled),
+          payoutsEnabled: Boolean(d.payoutsEnabled),
+          link: d.dashboardUrl ?? null
+        });
+      })
+      .catch(() => setStripe((s) => ({ ...s, loading: false })));
+  }, []);
+
+  async function connectStripe() {
+    setStripe((s) => ({ ...s, loading: true }));
+    try {
+      const res = await fetch("/api/v1/me/stripe-connect", { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error?.message ?? "Could not connect Stripe");
+      const url = json.data?.onboardingUrl ?? json.data?.dashboardUrl;
+      if (url) window.location.href = url;
+      else setStripe((s) => ({ ...s, connected: true, loading: false }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not connect Stripe");
+      setStripe((s) => ({ ...s, loading: false }));
+    }
+  }
 
   function set<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -128,6 +177,55 @@ export function SettingsForm({ initial }: { initial: Record<string, unknown> }) 
       </form>
 
       <div className="space-y-6">
+        <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-6">
+          <h2 className="label-mono">stripe payouts</h2>
+          <p className="mt-2 text-sm text-neutral-500">
+            Donations and memberships go straight to your bank via Stripe Connect. Stripe handles identity
+            verification, taxes, and payouts. OpenJar takes no cut.
+          </p>
+          {stripe.loading ? (
+            <div className="mt-4 flex items-center gap-2 text-sm text-neutral-500">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Checking payout status…
+            </div>
+          ) : !stripe.configured ? (
+            <p className="mt-4 text-sm text-amber-400/90">
+              Payouts aren&apos;t enabled on this instance yet. Set STRIPE_SECRET_KEY to turn them on.
+            </p>
+          ) : (
+            <div className="mt-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neutral-800 bg-neutral-900/60 px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium">{stripe.connected ? "Connected" : "Not connected"}</p>
+                  {stripe.connected ? (
+                    <p className="mt-0.5 text-xs text-neutral-500">
+                      Charges {stripe.chargesEnabled ? "enabled" : "pending"} · Payouts{" "}
+                      {stripe.payoutsEnabled ? "enabled" : "pending"}
+                    </p>
+                  ) : (
+                    <p className="mt-0.5 text-xs text-neutral-500">Connect to start receiving payouts.</p>
+                  )}
+                </div>
+                <Button variant="outline" onClick={connectStripe} disabled={stripe.loading}>
+                  {stripe.loading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : stripe.connected ? (
+                    <>
+                      Stripe dashboard <ExternalLink className="h-3.5 w-3.5" />
+                    </>
+                  ) : (
+                    "Connect Stripe"
+                  )}
+                </Button>
+              </div>
+              {stripe.connected && stripe.link && (
+                <a href={stripe.link} className="mt-3 inline-block text-xs text-neutral-500 underline underline-offset-2">
+                  Open Stripe dashboard →
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-6">
           <h2 className="label-mono">github sync</h2>
           <p className="mt-2 text-sm text-neutral-500">

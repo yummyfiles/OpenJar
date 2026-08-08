@@ -1,3 +1,5 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -41,4 +43,11 @@ const nextConfig = {
   }
 };
 
-export default nextConfig;
+const sentryConfig = {
+  // only upload source maps when a token is present, so local builds stay green
+  ...(process.env.SENTRY_AUTH_TOKEN ? {} : { disableSourceMapUpload: true }),
+  hideSourceMaps: false,
+  silent: true
+};
+
+export default withSentryConfig(nextConfig, sentryConfig);

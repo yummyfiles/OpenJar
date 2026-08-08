@@ -16,7 +16,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const rl = rateLimit(clientIp(req), { key: "comments", limit: 20 });
+    const rl = await rateLimit(clientIp(req), { key: "comments", limit: 20 });
     if (!rl.success) {
       return NextResponse.json({ error: { code: "rate_limited", message: "Slow down" } }, { status: 429 });
     }
