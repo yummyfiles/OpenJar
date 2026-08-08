@@ -43,8 +43,13 @@ function Logo() {
 function UserMenu() {
   const { data: session } = useSession();
   const user = session?.user;
+  const [mounted, setMounted] = React.useState(false);
 
-  if (!user) return null;
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !user) return null;
 
   const username = user.username as string | undefined;
 
@@ -111,8 +116,13 @@ export function SiteHeader() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
-  const user = session?.user;
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const user = mounted ? session?.user : null;
   const username = user?.username as string | undefined;
 
   if (pathname.includes("/embed")) return null;
