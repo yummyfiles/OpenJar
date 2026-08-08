@@ -100,6 +100,8 @@ export function SiteHeader() {
   const user = session?.user;
   const username = (user?.username as string | undefined) ?? (user?.displayName as string | undefined);
 
+  if (pathname.includes("/embed")) return null;
+
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-900 bg-black/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">

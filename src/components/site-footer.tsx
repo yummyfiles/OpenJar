@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Github } from "lucide-react";
 
 const columns = [
@@ -42,6 +45,10 @@ const columns = [
 ];
 
 export function SiteFooter() {
+  const pathname = usePathname();
+
+  if (pathname.includes("/embed")) return null;
+
   return (
     <footer className="border-t border-neutral-900">
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">

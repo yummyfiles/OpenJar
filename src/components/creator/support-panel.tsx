@@ -28,14 +28,20 @@ export function SupportPanel({
   tiers,
   minDonation,
   allowAnonymous,
-  allowMessages
+  allowMessages,
+  embedded = false
 }: {
   username: string;
   tiers: Tier[];
   minDonation: number;
   allowAnonymous: boolean;
   allowMessages: boolean;
+  embedded?: boolean;
 }) {
+  const go = (url: string) => {
+    const target = embedded ? window.top : window;
+    (target ?? window).location.href = url;
+  };
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [mode, setMode] = React.useState<"one_time" | "membership">("one_time");
@@ -75,7 +81,7 @@ export function SupportPanel({
         body.tierId = activeTierId;
         body.interval = "month";
         if (!session?.user) {
-          window.location.href = `/login?next=/${username}`;
+          go(`/login?next=/${username}`);
           return;
         }
       }
@@ -90,7 +96,7 @@ export function SupportPanel({
 
       const intent = json.data;
       if (intent.checkoutUrl) {
-        window.location.href = intent.checkoutUrl;
+        go(intent.checkoutUrl);
       } else {
         toast.info("This creator has not connected a payment processor yet — check back soon.");
       }

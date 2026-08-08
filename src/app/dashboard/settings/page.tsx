@@ -11,6 +11,7 @@ export default async function DashboardSettingsPage() {
   return (
     <SettingsForm
       initial={{
+        username: user.username,
         displayName: user.displayName,
         bio: user.bio,
         website: user.website,

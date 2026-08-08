@@ -6,6 +6,7 @@ import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { CREATOR_CATEGORIES } from "@/lib/constants";
+import { EmbedSnippets } from "@/components/dashboard/embed-snippets";
 
 type StripeState = {
   loading: boolean;
@@ -236,6 +237,8 @@ export function SettingsForm({ initial }: { initial: Record<string, unknown> }) 
             Refresh GitHub data
           </Button>
         </div>
+
+        <EmbedSnippets username={(initial.username as string) ?? ""} />
 
         <div className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-6">
           <h2 className="label-mono">membership tiers</h2>
