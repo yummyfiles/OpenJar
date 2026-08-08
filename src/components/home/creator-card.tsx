@@ -27,7 +27,7 @@ export function CreatorCard({
   return (
     <Link
       href={`/${handle}`}
-      className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:border-neutral-600 hover:shadow-card-hover"
+      className="group relative flex flex-col rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:-translate-y-1 hover:border-neutral-600 hover:shadow-card-hover"
     >
       <div className="flex items-start justify-between">
         <Avatar src={creator.image} alt={creator.displayName ?? creator.name} size="lg" />

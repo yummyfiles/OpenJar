@@ -21,7 +21,7 @@ export function PostListItem({ post, username }: { post: PublicPost; username: s
   const body = post.excerpt || post.title || "";
 
   return (
-    <article className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-colors hover:border-neutral-600">
+    <article className="rounded-xl border border-neutral-800 bg-neutral-950/60 p-5 transition-all hover:-translate-y-1 hover:border-neutral-600">
       {post.pinned && (
         <span className="mb-2 inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-neutral-500">
           <Pin className="h-3 w-3" /> pinned

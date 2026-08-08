@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Share_Tech_Mono } from "next/font/google";
+import { MotionConfig } from "framer-motion";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Toaster } from "@/components/toaster";
+import { ScrollProgress } from "@/components/scroll-progress";
 import "./globals.css";
 
 const inter = Inter({
@@ -50,12 +52,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${shareTechMono.variable} flex min-h-screen flex-col`}>
-        <ThemeProvider>
-          <SiteHeader />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-          <Toaster />
-        </ThemeProvider>
+        <MotionConfig reducedMotion="user">
+          <ThemeProvider>
+            <ScrollProgress />
+            <SiteHeader />
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+            <Toaster />
+          </ThemeProvider>
+        </MotionConfig>
       </body>
     </html>
   );

@@ -232,7 +232,7 @@ export function SupportPanel({
         )}
 
         <Button type="submit" disabled={busy} className="w-full" size="lg">
-          {busy ? <Spinner /> : <Heart className="h-4 w-4" />}
+          {busy ? <Spinner /> : <Heart className="animate-heartbeat h-4 w-4" />}
           {mode === "membership"
             ? `Join ${tiers.find((t) => t.id === activeTierId)?.name ?? "membership"}`
             : `Support ${formatAmountShort(amountCents)}`}
