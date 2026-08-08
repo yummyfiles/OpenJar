@@ -33,9 +33,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </div>
 
-      <DashboardNav />
-
-      <div className="mt-8">{children}</div>
+      <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
+        <div className="lg:sticky lg:top-24 lg:self-start">
+          <DashboardNav />
+        </div>
+        <div className="min-w-0">{children}</div>
+      </div>
     </main>
   );
 }

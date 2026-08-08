@@ -17,7 +17,7 @@ export function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-8 flex flex-wrap items-center gap-1 rounded-xl border border-neutral-800 bg-neutral-950/60 p-1">
+    <nav className="flex flex-col gap-1">
       {NAV.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
         return (
@@ -25,7 +25,7 @@ export function DashboardNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "inline-flex items-center gap-2 rounded-lg px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors",
+              "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 font-mono text-xs uppercase tracking-wider transition-colors",
               active ? "bg-white text-black" : "text-neutral-400 hover:bg-neutral-900 hover:text-white"
             )}
           >
